@@ -40,6 +40,7 @@ Create an Azure Storage account, which is a secure place in the cloud to keep di
 - Upload product1.json to virtual folder product_data.
 - Data Lake Gen2 upgrade.
 - Upload product2.json. Adding a second file post-upgrade confirms seamless continuity: existing blobs still work, and new ones gain hierarchical benefits such as directory ACLs (Access Control Lists).
-- Add a Classic file shares
-  ![Classic file shares](images/classic-file-shares.png)
+  <img src="images/storage-account.png" alt="Storage account" width="60%">
+- Add a Classic file shares<br>
+  <img src="images/classic-file-shares.png" alt="Classic file shares" width="60%">
 - Cleanup
