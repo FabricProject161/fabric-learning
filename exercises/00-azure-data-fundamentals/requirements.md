@@ -11,8 +11,6 @@ The certification validates foundational knowledge of:
 - Non-relational data in Azure
 - Analytics workloads in Azure
 
-Source: Microsoft Learn Azure Data Fundamentals certification. 【1-565945】【2-7d442d】
-
 ---
 
 ## Target Audience
@@ -31,8 +29,6 @@ This certification is designed for:
 - Business users
 - Cloud beginners
 - IT professionals transitioning to Azure data technologies
-
-Source: Microsoft Learn. 【1-565945】【2-7d442d】
 
 ---
 
@@ -80,8 +76,6 @@ Upon completion, learners should be able to:
   - Power BI
 - Describe data ingestion, transformation, and visualization processes
 
-Source: DP-900 Study Guide and Skills Measured. 【2-7d442d】【3-4b1456】
-
 ---
 
 ## Prerequisites
@@ -96,8 +90,6 @@ None.
 - Familiarity with cloud concepts
 - Access to an Azure subscription for hands-on exercises
 
-Source: Microsoft Learn. 【1-565945】
-
 ---
 
 ## Skills Measured
@@ -108,8 +100,6 @@ Source: Microsoft Learn. 【1-565945】
 | Relational Data on Azure | Azure SQL and relational database services |
 | Non-Relational Data on Azure | Azure Cosmos DB and storage services |
 | Analytics Workloads on Azure | Modern analytics, BI, and data warehousing |
-
-Source: Microsoft Learn certification requirements. 【1-565945】【2-7d442d】
 
 ---
 
