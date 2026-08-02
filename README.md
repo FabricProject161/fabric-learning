@@ -4,6 +4,7 @@ A structured learning repository for Microsoft Fabric.
 
 ## Objectives
 
+- Learn Azure Data Fundamentals (DP‑900)
 - Learn OneLake
 - Learn Lakehouse architecture
 - Learn Data Factory
@@ -19,6 +20,7 @@ A structured learning repository for Microsoft Fabric.
 
 | Module | Status |
 |----------|----------|
+| Data Fundamentals | ⬜ |
 | Lakehouse | ⬜ |
 | Notebooks | ⬜ |
 | Pipelines | ⬜ |
