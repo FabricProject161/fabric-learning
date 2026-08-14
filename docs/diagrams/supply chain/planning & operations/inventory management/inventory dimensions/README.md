@@ -3,6 +3,7 @@
 ## Inventory Dimensions
 
 ```mermaid
+%%{init: { 'themeVariables': { 'fontSize': '18px' }, 'flowchart': { 'diagramPadding': 50 } }}%%
 flowchart TD
     A[Configure Inventory Dimensions<br/>D365 Supply Chain Management] --> B[Design Dimension Model]
     B --> C[Product Dimensions]
