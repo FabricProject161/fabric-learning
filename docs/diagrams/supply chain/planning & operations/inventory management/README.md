@@ -25,10 +25,6 @@ flowchart LR
 ## Diagram 2 — Detailed Inventory Flow
 
 ```mermaid
----
-config:
-  layout: dagre
----
 flowchart LR
     A[Inventory planning & forecasting] --> B[Procurement]
     B --> C[Receiving & inspection]
@@ -67,9 +63,4 @@ flowchart LR
     H --> H1[Monitor KPIs & inventory metrics]
     H --> H2[Analyze turnover, stock levels, accuracy, costs]
     H --> H3[Identify improvements & optimize processes]
-
-    classDef stageMain stroke:#818cf8,fill:#eef2ff
-    classDef stageDetail stroke:#a78bfa,fill:#f5f3ff
-    class A,B,C,D,E,F,G,H stageMain
-    class A1,A2,A3,B1,B2,C1,C2,C3,D1,D2,E1,E2,E3,F1,F2,F3,G1,G2,G3,H1,H2,H3 stageDetail
 ```
