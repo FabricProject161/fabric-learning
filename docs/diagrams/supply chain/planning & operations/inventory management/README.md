@@ -35,6 +35,7 @@ flowchart LR
     class G shipping
     class H reporting
 	
+```mermaid
 flowchart LR
     A[Inventory planning & forecasting] --> B[Procurement]
     B --> C[Receiving & inspection]
