@@ -1,6 +1,6 @@
 # Inventory Management Diagrams
 
-## Diagram 1 — Inventory Flow
+## Inventory Flow
 
 ```mermaid
 flowchart LR
@@ -22,7 +22,7 @@ flowchart LR
     G --> H
 ```
 
-## Diagram 2 — Detailed Inventory Flow
+## Detailed Inventory Flow
 
 ```mermaid
 flowchart LR
