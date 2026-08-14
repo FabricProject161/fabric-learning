@@ -1,8 +1,4 @@
 ```mermaid
----
-config:
-  layout: elk
----
 flowchart LR
     A[Inventory Planning & Forecasting]
     B["Procurement<br/>(Purchase Orders)"]
@@ -39,11 +35,6 @@ flowchart LR
     class G shipping
     class H reporting
 	
-```mermaid
----
-config:
-  layout: dagre
----
 flowchart LR
     A[Inventory planning & forecasting] --> B[Procurement]
     B --> C[Receiving & inspection]
