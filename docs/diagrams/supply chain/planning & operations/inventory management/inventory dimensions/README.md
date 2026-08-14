@@ -3,7 +3,7 @@
 ## Inventory Dimensions
 
 ```mermaid
-%%{init: { 'flowchart': { 'rankSpacing': 1200, 'nodeSpacing': 800 } }}%%
+%%{init: { 'flowchart': { 'rankSpacing': 12, 'nodeSpacing': 8 } }}%%
 flowchart TD
     A[Configure Inventory Dimensions<br/>D365 Supply Chain Management] --> B[Design Dimension Model]
     B --> C[Product Dimensions]
