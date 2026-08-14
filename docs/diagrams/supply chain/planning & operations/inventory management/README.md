@@ -39,6 +39,7 @@ flowchart LR
     class G shipping
     class H reporting
 	
+```mermaid
 ---
 config:
   layout: dagre
