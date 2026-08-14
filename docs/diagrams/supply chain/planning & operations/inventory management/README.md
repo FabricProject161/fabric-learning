@@ -27,7 +27,7 @@ flowchart LR
 ```mermaid
 ---
 config:
-  layout: elk
+  layout: dagre
 ---
 flowchart LR
     A[Inventory planning & forecasting] --> B[Procurement]
