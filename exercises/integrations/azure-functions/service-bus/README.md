@@ -1,5 +1,6 @@
 # Process Messages with Azure Service Bus
 Develop AI Cloud Solutions on Microsoft Azure
+https://microsoftlearning.github.io/mslearn-azure-ai/instructions/integrate-services/01-svcbus-process-messages.html
 
 Azure Service Bus enables reliable messaging patterns for AI workflows.  
 This exercise demonstrates queue messaging, dead‑lettering, and topic subscriptions using a Python Flask app.
