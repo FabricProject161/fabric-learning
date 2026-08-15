@@ -169,6 +169,10 @@ cd client
 python -m venv .venv
 source .venv/bin/activate
 # Windows:
+source .venv/Scripts/activate.
+
+PowerShell:
+```powershell
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
