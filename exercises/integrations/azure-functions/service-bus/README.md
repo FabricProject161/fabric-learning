@@ -170,7 +170,7 @@ cd client
 python -m venv .venv
 source .venv/bin/activate
 # Windows:
-source .venv/Scripts/activate.
+source .venv/Scripts/activate
 
 PowerShell:
 ```powershell
