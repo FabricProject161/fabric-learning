@@ -165,20 +165,22 @@ def topic_messaging():
 ---
 
 # 4. Configure Python Environment
-```bash
 cd client
 python -m venv .venv
+
+Bash:
+```bash
 source .venv/bin/activate
 # Windows:
 source .venv/Scripts/activate
+```
 
 PowerShell:
 ```powershell
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
 ```
 
----
+pip install -r requirements.txt
 
 # 5. Run the App
 ```bash
