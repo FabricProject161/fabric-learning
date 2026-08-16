@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>
+            Publish and receive events with Azure Event Grid | 
+            
+            Develop AI Cloud Solutions on Microsoft Azure
+        </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <link rel="stylesheet" href="/mslearn-azure-ai/assets/css/style.css?v=1393bef3ba7ae2e8242c9b55d41f2794f00f6c13">
+    </head>
+    <body data-spy="scroll" data-target="#linksMenu">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+        <div class="container d-flex justify-content-between">
+            <!-- <img src="https://github.com/MicrosoftLearning/Jekyll-Theme/raw/master/assets/microsoft-gray.png" alt="Microsoft logo" style="width:100px;height:21px;"/>-->
+            <span class="my-1 title text-black">Develop AI Cloud Solutions on Microsoft Azure</span>
+            <span class="ml-2">
+                <a href="https://microsoftlearning.github.io/mslearn-azure-ai" class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    &nbsp;Home
+                </a>
+            </span>
+        </div>
+        <!--
+        <div class="container d-flex justify-content-between">
+            <a class="my-1 title text-azure text-uppercase" href="https://microsoftlearning.github.io/mslearn-azure-ai">
+                Develop AI Cloud Solutions on Microsoft Azure
+            </a>
+            <a href="https://github.com/MicrosoftLearning/mslearn-azure-ai" target="_blank" class="btn btn-sm btn-outline-secondary text-light">
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <span class="ml-2">GitHub</span>
+            </a>
+        </div>
+        -->
+    </nav>
+    <hr color-"gray"/>
+    <div class="container">
+        <main class="row extra-padding">
+            <aside class="col-sm-2">       
+                <nav id="linksMenu" class="toc sticky-top">
+                    <ul class="nav navbar-nav flex-column">
+                    </ul>
+                </nav>         
+            </aside>
+            <hr class="" />
+            <article class="col-sm-10 mb-5">
+                <h1 id="publish-and-receive-events-with-azure-event-grid">Publish and receive events with Azure Event Grid</h1>
+<p>AI content moderation systems generate a high volume of events as they classify and review submissions. Azure Event Grid provides the routing layer that directs these events to the right downstream consumers based on event type, so each handler receives only the events it needs without polling or manual filtering.</p>
+<p>In this exercise, you deploy an Event Grid Namespace with a namespace topic and filtered event subscriptions, then build a Python Flask application that publishes content moderation events and receives them using pull delivery. Event Grid subscriptions route flagged content, approved content, and all events to separate subscriptions so you can observe how filtering works in practice. You also use the receive, acknowledge, and reject operations that pull delivery provides to control how your application processes events.</p>
+<p>Tasks performed in this exercise:</p>
+<ul>
+<li>Download the project starter files</li>
+<li>Deploy an Event Grid Namespace with a namespace topic</li>
+<li>Create event subscriptions with type filters</li>
+<li>Add code to the starter files to complete the app</li>
+<li>Run the app to publish, receive, and process moderation events</li>
+</ul>
+<p>This exercise takes approximately <strong>30</strong> minutes to complete.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>To complete the exercise, you need:</p>
+<ul>
+<li>An Azure subscription. If you don't already have one, you can <a href="https://azure.microsoft.com/">sign up for one</a>.</li>
+<li><a href="https://code.visualstudio.com/">Visual Studio Code</a> on one of the <a href="https://code.visualstudio.com/docs/supporting/requirements#_platforms">supported platforms</a>.</li>
+<li><a href="https://www.python.org/downloads/">Python 3.12</a> or greater.</li>
+<li>The latest version of the <a href="https://learn.microsoft.com/cli/azure/install-azure-cli">Azure CLI</a>.</li>
+</ul>
+<h2 id="download-project-starter-files-and-deploy-resources">Download project starter files and deploy resources</h2>
+<p>In this section you download the starter files for the app and use a script to deploy an Event Grid Namespace to your subscription. The namespace contains a topic where your application publishes moderation events and event subscriptions that filter and hold events for pull delivery.</p>
+<ol>
+<li>
+<p>Open a browser and enter the following URL to download the starter file. The file will be saved in your default download location.</p>
+<pre><code>https://github.com/MicrosoftLearning/mslearn-azure-ai/raw/main/downloads/python/event-grid-python.zip
+</code></pre></li>
+<li>
+<p>Copy, or move, the file to a location in your system where you want to work on the project. Then unzip the file into a folder.</p>
+</li>
+<li>
+<p>Launch Visual Studio Code (VS Code) and select <strong>File &gt; Open Folder...</strong> in the menu, then choose the folder containing the project files.</p>
+</li>
+<li>
+<p>The project contains deployment scripts for both Bash (<em>azdeploy.sh</em>) and PowerShell (<em>azdeploy.ps1</em>). Open the appropriate file for your environment and change the two values at the top of the script to meet your needs, then save your changes. <strong>Note:</strong> Do not change anything else in the script.</p>
+<pre><code>&quot;&lt;your-resource-group-name&gt;&quot; # Resource Group name
+&quot;&lt;your-azure-region&gt;&quot; # Azure region for the resources
+</code></pre></li>
+<li>
+<p>In the menu bar select <strong>Terminal &gt; New Terminal</strong> to open a terminal window in VS Code.</p>
+</li>
+<li>
+<p>Run the following command to login to your Azure account. Answer the prompts to select your Azure account and subscription for the exercise.</p>
+<pre><code>az login
+</code></pre></li>
+<li>
+<p>Run the following command to ensure your subscription has the necessary resource provider for the exercise.</p>
+<pre><code>az provider register --namespace Microsoft.EventGrid
+</code></pre></li>
+<li>
+<p>Run the following command to install the Event Grid CLI extension. The namespace commands used by the deployment script require this extension.</p>
+<pre><code>az extension add --name eventgrid --yes
+</code></pre></li>
+<li>
+<p>Run the appropriate command in the terminal to launch the script.</p>
+<p><strong>Bash</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash azdeploy.sh
+</code></pre></div></div>
+<p><strong>PowerShell</strong></p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">.</span><span class="n">/azdeploy.ps1</span><span class="w">
+</span></code></pre></div></div>
+<blockquote>
+<p><strong>Note:</strong> If PowerShell blocks the script because it is not digitally signed, run the following command in the same terminal session, then run the deployment script again. This command changes the execution policy only for the current PowerShell process.</p>
+</blockquote>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Set-ExecutionPolicy</span><span class="w"> </span><span class="nt">-Scope</span><span class="w"> </span><span class="nx">Process</span><span class="w"> </span><span class="nt">-ExecutionPolicy</span><span class="w"> </span><span class="nx">Bypass</span><span class="w">
+</span></code></pre></div></div>
+</li>
+<li>
+<p>When the script is running, enter <strong>1</strong> to launch the <strong>1. Create Event Grid namespace and topic</strong> option.</p>
+<p>This option creates the resource group if it doesn't already exist, deploys an Event Grid Namespace with the Standard SKU, and creates a namespace topic named <strong>moderation-events</strong> configured for CloudEvents v1.0 input. The namespace is the container for your topic and event subscriptions, and pull delivery lets your application connect directly to Event Grid to receive events without needing a separate messaging service.</p>
+</li>
+<li>
+<p>Enter <strong>2</strong> to run the <strong>2. Create event subscriptions</strong> option.</p>
+<p>This option creates three event subscriptions on the namespace topic. The <strong>sub-flagged</strong> subscription uses an event type filter that delivers only <strong>com.contoso.ai.ContentFlagged</strong> events. The <strong>sub-approved</strong> subscription delivers only <strong>com.contoso.ai.ContentApproved</strong> events. The <strong>sub-all-events</strong> subscription has no filter and delivers every event published to the topic, serving as an audit log. Each subscription is configured with pull delivery mode, a 60-second receive lock duration, a maximum delivery count of 10, and a one-day event time-to-live.</p>
+</li>
+<li>
+<p>Enter <strong>3</strong> to run the <strong>3. Assign user roles</strong> option. This assigns the EventGrid Data Sender role and the EventGrid Data Receiver role on the namespace so your account can publish events and receive events using Microsoft Entra authentication.</p>
+</li>
+<li>
+<p>Enter <strong>4</strong> to run the <strong>4. Retrieve connection info</strong> option. This creates the environment variable files with the resource group name, namespace name, topic name, and namespace endpoint.</p>
+</li>
+<li>
+<p>Enter <strong>6</strong> to exit the deployment script.</p>
+<blockquote>
+<p><strong>Note:</strong> If you encounter issues later in the exercise, you can rerun the script and enter <strong>5</strong> to run <strong>5. Check deployment status</strong>. This troubleshooting option verifies that the namespace shows <strong>Succeeded</strong>, the topic is created, roles are assigned, and all event subscriptions are provisioned.</p>
+</blockquote>
+</li>
+<li>
+<p>Run the appropriate command to load the environment variables into your terminal session from the file created in a previous step.</p>
+<p><strong>Bash</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">source</span> .env
+</code></pre></div></div>
+<p><strong>PowerShell</strong></p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">.</span><span class="w"> </span><span class="o">.</span><span class="n">\.env.ps1</span><span class="w">
+</span></code></pre></div></div>
+<blockquote>
+<p><strong>Note:</strong> Keep the terminal open. If you close it and create a new terminal, you need to run this command again to reload the environment variables.</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="complete-the-app">Complete the app</h2>
+<p>In this section you add code to the <em>event_grid_functions.py</em> file to complete the Event Grid publishing and pull delivery functions. The Flask app in <em>app.py</em> calls these functions and displays the results in the browser. You run the app later in the exercise.</p>
+<ol>
+<li>Open the <em>client/event_grid_functions.py</em> file to begin adding code.</li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> The code blocks you add to the application should align with the comment for that section of the code.</p>
+</blockquote>
+<h3 id="add-code-to-publish-moderation-events">Add code to publish moderation events</h3>
+<p>In this section, you add code to publish five content moderation events to the Event Grid namespace topic. The events use the CloudEvents v1.0 schema and represent different moderation outcomes — flagged content, approved content, and an escalated review — so you can observe how each subscription's event type filter determines which events it delivers.</p>
+<p>The function loads event definitions from the <em>moderation_events.json</em> file, which contains the CloudEvent envelope fields (<strong>type</strong>, <strong>source</strong>, <strong>subject</strong>) and <strong>data</strong> payload for each event. At publish time, the function adds a unique <strong>id</strong> and a current UTC <strong>timestamp</strong> to each event, then creates <strong>CloudEvent</strong> objects and publishes them with the <strong>send()</strong> method in a single request. The <strong>EventGridPublisherClient</strong> is constructed with a <strong>namespace_topic</strong> parameter that targets the namespace topic endpoint, and uses <strong>DefaultAzureCredential</strong> for Microsoft Entra authentication.</p>
+<ol>
+<li>
+<p>Locate the <strong># BEGIN PUBLISH EVENTS FUNCTION</strong> comment and add the following code under the comment. Be sure to check for proper code alignment.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">publish_moderation_events</span><span class="p">():</span>
+    <span class="s">"""Publish content moderation events to the Event Grid namespace topic."""</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">get_publisher_client</span><span class="p">()</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Load event definitions from the JSON file. Each entry contains the
+</span>    <span class="c1"># CloudEvent envelope fields (type, source, subject) and the data
+</span>    <span class="c1"># payload that mirrors a realistic AI content moderation pipeline.
+</span>    <span class="n">json_path</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">"moderation_events.json"</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">event_definitions</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Build CloudEvent objects from the definitions, adding a unique id
+</span>    <span class="c1"># and a current UTC timestamp to each event at publish time.
+</span>    <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">defn</span> <span class="ow">in</span> <span class="n">event_definitions</span><span class="p">:</span>
+        <span class="n">defn</span><span class="p">[</span><span class="s">"data"</span><span class="p">][</span><span class="s">"timestamp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">).</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">events</span><span class="p">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">CloudEvent</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">defn</span><span class="p">[</span><span class="s">"type"</span><span class="p">],</span>
+                <span class="n">source</span><span class="o">=</span><span class="n">defn</span><span class="p">[</span><span class="s">"source"</span><span class="p">],</span>
+                <span class="n">subject</span><span class="o">=</span><span class="n">defn</span><span class="p">[</span><span class="s">"subject"</span><span class="p">],</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">defn</span><span class="p">[</span><span class="s">"data"</span><span class="p">],</span>
+                <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="p">.</span><span class="n">uuid4</span><span class="p">())</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># send() publishes all events to the Event Grid namespace topic in a
+</span>    <span class="c1"># single request. Event Grid then evaluates each subscription's
+</span>    <span class="c1"># filters and routes matching events to the configured subscriptions.
+</span>    <span class="n">client</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="n">results</span><span class="p">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s">"content_id"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">"contentId"</span><span class="p">],</span>
+            <span class="s">"event_type"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="nb">type</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s">"category"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">"category"</span><span class="p">],</span>
+            <span class="s">"confidence"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">"confidence"</span><span class="p">],</span>
+            <span class="s">"status"</span><span class="p">:</span> <span class="s">"published"</span>
+        <span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div></div>
+</li>
+<li>
+<p>Save your changes and take a few minutes to review the code.</p>
+</li>
+</ol>
+<h3 id="add-code-to-receive-and-acknowledge-events">Add code to receive and acknowledge events</h3>
+<p>In this section, you add code to receive events from each subscription and acknowledge them to verify that filtering works. Pull delivery means your application connects to Event Grid and requests events rather than Event Grid pushing them to an endpoint. Each received event includes a lock token that you must acknowledge to permanently remove the event from the subscription, or the event is redelivered after the lock duration expires.</p>
+<p>The function creates an <strong>EventGridConsumerClient</strong> for each of the three subscriptions. The <strong>receive()</strong> method returns a list of <strong>ReceiveDetails</strong> objects, each containing the <strong>CloudEvent</strong> (<strong>.event</strong>) and broker properties with a <strong>lock_token</strong>. After processing, the function calls <strong>acknowledge()</strong> with the collected lock tokens to confirm that the events were successfully handled.</p>
+<ol>
+<li>
+<p>Locate the <strong># BEGIN CHECK DELIVERY FUNCTION</strong> comment and add the following code under the comment. Be sure to check for proper code alignment.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">check_filtered_delivery</span><span class="p">():</span>
+    <span class="s">"""Receive and acknowledge events from each subscription to verify filtering."""</span>
+    <span class="n">flagged</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">approved</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_events</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Receive from the sub-flagged subscription, which only delivers
+</span>    <span class="c1"># events where the event type is com.contoso.ai.ContentFlagged.
+</span>    <span class="c1"># receive() returns a list of ReceiveDetails, each containing
+</span>    <span class="c1"># the CloudEvent and a lock token for acknowledgment.
+</span>    <span class="n">consumer</span> <span class="o">=</span> <span class="n">get_consumer_client</span><span class="p">(</span><span class="n">SUB_FLAGGED</span><span class="p">)</span>
+    <span class="n">details</span> <span class="o">=</span> <span class="n">consumer</span><span class="p">.</span><span class="n">receive</span><span class="p">(</span><span class="n">max_events</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_wait_time</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">detail</span> <span class="ow">in</span> <span class="n">details</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">detail</span><span class="p">.</span><span class="n">event</span>
+        <span class="n">flagged</span><span class="p">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s">"content_id"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"contentId"</span><span class="p">),</span>
+            <span class="s">"category"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"category"</span><span class="p">),</span>
+            <span class="s">"severity"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"severity"</span><span class="p">),</span>
+            <span class="s">"confidence"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"confidence"</span><span class="p">)</span>
+        <span class="p">})</span>
+        <span class="n">tokens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">detail</span><span class="p">.</span><span class="n">broker_properties</span><span class="p">.</span><span class="n">lock_token</span><span class="p">)</span>
+    <span class="c1"># acknowledge() removes the events from the subscription so they
+</span>    <span class="c1"># are not delivered again on the next receive call.
+</span>    <span class="k">if</span> <span class="n">tokens</span><span class="p">:</span>
+        <span class="n">consumer</span><span class="p">.</span><span class="n">acknowledge</span><span class="p">(</span><span class="n">lock_tokens</span><span class="o">=</span><span class="n">tokens</span><span class="p">)</span>
+
+    <span class="c1"># Receive from the sub-approved subscription, which only delivers
+</span>    <span class="c1"># events where the event type is com.contoso.ai.ContentApproved.
+</span>    <span class="n">consumer</span> <span class="o">=</span> <span class="n">get_consumer_client</span><span class="p">(</span><span class="n">SUB_APPROVED</span><span class="p">)</span>
+    <span class="n">details</span> <span class="o">=</span> <span class="n">consumer</span><span class="p">.</span><span class="n">receive</span><span class="p">(</span><span class="n">max_events</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_wait_time</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">detail</span> <span class="ow">in</span> <span class="n">details</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">detail</span><span class="p">.</span><span class="n">event</span>
+        <span class="n">approved</span><span class="p">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s">"content_id"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"contentId"</span><span class="p">),</span>
+            <span class="s">"category"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"category"</span><span class="p">),</span>
+            <span class="s">"severity"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"severity"</span><span class="p">),</span>
+            <span class="s">"confidence"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"confidence"</span><span class="p">)</span>
+        <span class="p">})</span>
+        <span class="n">tokens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">detail</span><span class="p">.</span><span class="n">broker_properties</span><span class="p">.</span><span class="n">lock_token</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tokens</span><span class="p">:</span>
+        <span class="n">consumer</span><span class="p">.</span><span class="n">acknowledge</span><span class="p">(</span><span class="n">lock_tokens</span><span class="o">=</span><span class="n">tokens</span><span class="p">)</span>
+
+    <span class="c1"># Receive from the sub-all-events subscription, which has no filter
+</span>    <span class="c1"># and delivers every event published to the topic (audit log).
+</span>    <span class="n">consumer</span> <span class="o">=</span> <span class="n">get_consumer_client</span><span class="p">(</span><span class="n">SUB_ALL</span><span class="p">)</span>
+    <span class="n">details</span> <span class="o">=</span> <span class="n">consumer</span><span class="p">.</span><span class="n">receive</span><span class="p">(</span><span class="n">max_events</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_wait_time</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">detail</span> <span class="ow">in</span> <span class="n">details</span><span class="p">:</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">detail</span><span class="p">.</span><span class="n">event</span>
+        <span class="n">all_events</span><span class="p">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s">"content_id"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"contentId"</span><span class="p">),</span>
+            <span class="s">"event_type"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"modelName"</span><span class="p">,</span> <span class="s">"unknown"</span><span class="p">),</span>
+            <span class="s">"category"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"category"</span><span class="p">),</span>
+            <span class="s">"confidence"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"confidence"</span><span class="p">)</span>
+        <span class="p">})</span>
+        <span class="n">tokens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">detail</span><span class="p">.</span><span class="n">broker_properties</span><span class="p">.</span><span class="n">lock_token</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tokens</span><span class="p">:</span>
+        <span class="n">consumer</span><span class="p">.</span><span class="n">acknowledge</span><span class="p">(</span><span class="n">lock_tokens</span><span class="o">=</span><span class="n">tokens</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"flagged"</span><span class="p">:</span> <span class="n">flagged</span><span class="p">,</span>
+        <span class="s">"approved"</span><span class="p">:</span> <span class="n">approved</span><span class="p">,</span>
+        <span class="s">"all_events"</span><span class="p">:</span> <span class="n">all_events</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+</li>
+<li>
+<p>Save your changes and take a few minutes to review the code.</p>
+</li>
+</ol>
+<h3 id="add-code-to-inspect-and-reject-an-event">Add code to inspect and reject an event</h3>
+<p>In this section, you add code that publishes a single test event, receives it, inspects the full CloudEvent envelope, and then rejects it. Rejecting an event tells Event Grid that the event cannot be processed. This is different from acknowledging, which confirms successful processing. Rejected events are discarded or moved to a dead-letter destination if one is configured.</p>
+<p>The function first publishes a test event using the <strong>EventGridPublisherClient</strong> so there is always an event available regardless of whether earlier events were already acknowledged. It then receives the event from the <strong>sub-flagged</strong> subscription, extracts the CloudEvent attributes and broker properties (including <strong>delivery_count</strong>), and calls <strong>reject()</strong> with the lock token.</p>
+<ol>
+<li>
+<p>Locate the <strong># BEGIN INSPECT AND REJECT FUNCTION</strong> comment and add the following code under the comment. Be sure to check for proper code alignment.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">inspect_and_reject</span><span class="p">():</span>
+    <span class="s">"""Publish one event, receive it, inspect the CloudEvent envelope, then reject it."""</span>
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">get_publisher_client</span><span class="p">()</span>
+
+    <span class="c1"># Publish a single test event so there is always something to inspect,
+</span>    <span class="c1"># regardless of whether the student already acknowledged earlier events.
+</span>    <span class="n">test_event</span> <span class="o">=</span> <span class="n">CloudEvent</span><span class="p">(</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s">"com.contoso.ai.ContentFlagged"</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="s">"/services/content-moderation"</span><span class="p">,</span>
+        <span class="n">subject</span><span class="o">=</span><span class="s">"/content/text/test-inspect"</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+            <span class="s">"contentId"</span><span class="p">:</span> <span class="s">"test-inspect"</span><span class="p">,</span>
+            <span class="s">"contentType"</span><span class="p">:</span> <span class="s">"text"</span><span class="p">,</span>
+            <span class="s">"modelName"</span><span class="p">:</span> <span class="s">"text-moderator-v2"</span><span class="p">,</span>
+            <span class="s">"modelVersion"</span><span class="p">:</span> <span class="s">"2.4.0"</span><span class="p">,</span>
+            <span class="s">"confidence"</span><span class="p">:</span> <span class="mf">0.76</span><span class="p">,</span>
+            <span class="s">"category"</span><span class="p">:</span> <span class="s">"misinformation"</span><span class="p">,</span>
+            <span class="s">"severity"</span><span class="p">:</span> <span class="s">"medium"</span><span class="p">,</span>
+            <span class="s">"reviewRequired"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+            <span class="s">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">).</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="p">},</span>
+        <span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="p">.</span><span class="n">uuid4</span><span class="p">())</span>
+    <span class="p">)</span>
+    <span class="n">publisher</span><span class="p">.</span><span class="n">send</span><span class="p">([</span><span class="n">test_event</span><span class="p">])</span>
+
+    <span class="c1"># Receive from the sub-flagged subscription to pick up the test event.
+</span>    <span class="n">consumer</span> <span class="o">=</span> <span class="n">get_consumer_client</span><span class="p">(</span><span class="n">SUB_FLAGGED</span><span class="p">)</span>
+    <span class="n">details</span> <span class="o">=</span> <span class="n">consumer</span><span class="p">.</span><span class="n">receive</span><span class="p">(</span><span class="n">max_events</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_wait_time</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="n">detail</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">detail</span><span class="p">.</span><span class="n">event</span>
+    <span class="n">lock_token</span> <span class="o">=</span> <span class="n">detail</span><span class="p">.</span><span class="n">broker_properties</span><span class="p">.</span><span class="n">lock_token</span>
+    <span class="n">delivery_count</span> <span class="o">=</span> <span class="n">detail</span><span class="p">.</span><span class="n">broker_properties</span><span class="p">.</span><span class="n">delivery_count</span>
+
+    <span class="c1"># Capture the full CloudEvent envelope before rejecting.
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">"specversion"</span><span class="p">:</span> <span class="s">"1.0"</span><span class="p">,</span>
+        <span class="s">"type"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="nb">type</span><span class="p">,</span>
+        <span class="s">"source"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">source</span><span class="p">,</span>
+        <span class="s">"subject"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">subject</span><span class="p">,</span>
+        <span class="s">"id"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="nb">id</span><span class="p">,</span>
+        <span class="s">"time"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">time</span> <span class="k">else</span> <span class="s">""</span><span class="p">,</span>
+        <span class="s">"data"</span><span class="p">:</span> <span class="n">event</span><span class="p">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="s">"delivery_count"</span><span class="p">:</span> <span class="n">delivery_count</span><span class="p">,</span>
+        <span class="s">"action"</span><span class="p">:</span> <span class="s">"rejected"</span>
+    <span class="p">}</span>
+
+    <span class="c1"># reject() tells Event Grid this event cannot be processed. The event
+</span>    <span class="c1"># is moved to the dead-letter location if configured, or discarded
+</span>    <span class="c1"># if max delivery count has been reached.
+</span>    <span class="n">consumer</span><span class="p">.</span><span class="n">reject</span><span class="p">(</span><span class="n">lock_tokens</span><span class="o">=</span><span class="p">[</span><span class="n">lock_token</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></div>
+</li>
+<li>
+<p>Save your changes and take a few minutes to review the code.</p>
+</li>
+</ol>
+<h2 id="configure-the-python-environment">Configure the Python environment</h2>
+<p>In this section, you navigate to the client app directory, create the Python environment, and install the dependencies.</p>
+<ol>
+<li>
+<p>Run the following command in the VS Code terminal to navigate to the <em>client</em> directory.</p>
+<pre><code>cd client
+</code></pre></li>
+<li>
+<p>Run the following command to create the Python environment.</p>
+<pre><code>python -m venv .venv
+</code></pre></li>
+<li>
+<p>Run the following command to activate the Python environment. <strong>Note:</strong> On Linux/macOS, use the Bash command. On Windows, use the PowerShell command. If using Git Bash on Windows, use <strong>source .venv/Scripts/activate</strong>.</p>
+<p><strong>Bash</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">source</span> .venv/bin/activate
+</code></pre></div></div>
+<p><strong>PowerShell</strong></p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">.</span><span class="n">\.venv\Scripts\Activate.ps1</span><span class="w">
+</span></code></pre></div></div>
+</li>
+<li>
+<p>Run the following command in the VS Code terminal to install the dependencies.</p>
+<pre><code>pip install -r requirements.txt
+</code></pre></li>
+</ol>
+<h2 id="run-the-app">Run the app</h2>
+<p>In this section, you run the completed Flask application to publish content moderation events and verify that filtered subscriptions deliver them correctly. The app provides a web interface that lets you publish events, receive and acknowledge events from filtered subscriptions, and inspect and reject an event to explore the full CloudEvent structure and pull delivery operations.</p>
+<ol>
+<li>
+<p>Run the following command in the terminal to start the app. Refer to the commands from earlier in the exercise to activate the environment, if needed, before running the command. If you navigated away from the <em>client</em> directory, run <strong>cd client</strong> first.</p>
+<pre><code>python app.py
+</code></pre></li>
+<li>
+<p>Open a browser and navigate to <code>http://localhost:5000</code> to access the app.</p>
+</li>
+<li>
+<p>Select <strong>Publish Moderation Events</strong> in the left panel. This publishes five content moderation events to the Event Grid namespace topic: two flagged content events, two approved content events, and one escalated review. The results in the right panel confirm each event was published along with its content ID, event type, and category.</p>
+</li>
+<li>
+<p>Select <strong>Receive &amp; Acknowledge Events</strong> in the left panel. This uses pull delivery to receive events from all three subscriptions and acknowledges them after processing. Verify the following delivery behavior based on the filters configured on each subscription:</p>
+<ul>
+<li><strong>Flagged Subscription:</strong> Should contain two events, both with category values indicating policy violations (violence and hate-speech). These are the <strong>ContentFlagged</strong> events.</li>
+<li><strong>Approved Subscription:</strong> Should contain two events, both with the category <strong>safe</strong>. These are the <strong>ContentApproved</strong> events.</li>
+<li><strong>All Events Subscription:</strong> Should contain all five events regardless of type, serving as the audit log.</li>
+</ul>
+<p>The escalated review event (<strong>ReviewEscalated</strong>) appears only in the all-events subscription because neither the flagged nor approved subscriptions include that event type in their filter. Because the events were acknowledged, selecting this button again will show zero events until you publish more.</p>
+</li>
+<li>
+<p>Select <strong>Inspect &amp; Reject Event</strong> in the left panel. This publishes a new test event, receives it from the flagged subscription, displays the full CloudEvent envelope including the <strong>delivery_count</strong> from the broker properties, and then rejects the event. The rejection tells Event Grid this event cannot be processed, so Event Grid either discards it or moves it to a dead-letter destination if one is configured.</p>
+</li>
+</ol>
+<h2 id="clean-up-resources">Clean up resources</h2>
+<p>Now that you finished the exercise, you should delete the cloud resources you created to avoid unnecessary resource usage.</p>
+<ol>
+<li>
+<p>Run the following command in the VS Code terminal to delete the resource group, and all resources in the group. Replace <strong>&lt;rg-name&gt;</strong> with the name you choose earlier in the exercise. The command will launch a background task in Azure to delete the resource group.</p>
+<pre><code>az group delete --name &lt;rg-name&gt; --no-wait --yes
+</code></pre></li>
+</ol>
+<blockquote>
+<p><strong>CAUTION:</strong> Deleting a resource group deletes all resources contained within it. If you chose an existing resource group for this exercise, any existing resources outside the scope of this exercise will also be deleted.</p>
+</blockquote>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If you encounter issues while completing this exercise, try the following troubleshooting steps:</p>
+<p><strong>Verify Event Grid Namespace deployment</strong></p>
+<ul>
+<li>Navigate to the <a href="https://portal.azure.com">Azure portal</a> and locate your resource group.</li>
+<li>Confirm that the Event Grid Namespace shows a <strong>Provisioning State</strong> of <strong>Succeeded</strong>.</li>
+<li>Verify the namespace topic <strong>moderation-events</strong> exists within the namespace.</li>
+</ul>
+<p><strong>Check event subscriptions</strong></p>
+<ul>
+<li>Verify all three event subscriptions were created by running the deployment script status check (option 5).</li>
+<li>Confirm the subscriptions show <strong>Succeeded</strong> status: <strong>sub-flagged</strong>, <strong>sub-approved</strong>, and <strong>sub-all-events</strong>.</li>
+<li>If no events are received after publishing, ensure the subscriptions were created after the topic. Rerun the deployment script option 2 if needed.</li>
+</ul>
+<p><strong>Check code completeness and indentation</strong></p>
+<ul>
+<li>Ensure all code blocks were added to the correct sections in <em>event_grid_functions.py</em> between the appropriate BEGIN/END comment markers.</li>
+<li>Verify that Python indentation is consistent (use spaces, not tabs) and that all code aligns properly within functions.</li>
+<li>Confirm that no code was accidentally removed or modified outside the designated sections.</li>
+</ul>
+<p><strong>Verify environment variables</strong></p>
+<ul>
+<li>Check that the <em>.env</em> file exists in the project root and contains <strong>EVENTGRID_ENDPOINT</strong>, <strong>EVENTGRID_TOPIC_NAME</strong>, <strong>RESOURCE_GROUP</strong>, and <strong>NAMESPACE_NAME</strong> values.</li>
+<li>Ensure you ran <strong>source .env</strong> (Bash) or <strong>. ..env.ps1</strong> (PowerShell) to load environment variables into your terminal session.</li>
+<li>If variables are empty, re-run <strong>source .env</strong> (Bash) or <strong>. ..env.ps1</strong> (PowerShell).</li>
+</ul>
+<p><strong>Check authentication</strong></p>
+<ul>
+<li>Confirm you are logged in to Azure CLI by running <strong>az account show</strong>.</li>
+<li>Verify the EventGrid Data Sender and EventGrid Data Receiver roles are assigned on the namespace. Run the deployment script's role assignment option (option 3) again if needed.</li>
+</ul>
+<p><strong>Check Python environment and dependencies</strong></p>
+<ul>
+<li>Confirm the virtual environment is activated before running the app.</li>
+<li>Verify that all packages from <em>requirements.txt</em> were installed successfully by running <strong>pip list</strong>.</li>
+</ul>
+
+            </article>
+        </main>
+    </div>
+    <footer class="fixed-bottom d-print-none">
+        <nav class="navbar navbar-light bg-light d-flex justify-content-around">
+            <span class="navbar-text">
+                &copy; 2025 Microsoft &nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <a href="https://github.com/MicrosoftLearning/mslearn-azure-ai" target="_blank" class="ml-2">
+                    Source
+                </a>
+            </span>
+        </nav>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="/mslearn-azure-ai/assets/js/script.js?v=1393bef3ba7ae2e8242c9b55d41f2794f00f6c13"></script>
+</body>
+
+</html>
