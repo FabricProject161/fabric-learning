@@ -7,6 +7,11 @@ The exercise includes deploying an Event Grid Namespace, creating filtered subsc
 
 ---
 
+## 🎓 Microsoft Learning
+Process messages with Azure Service Bus | Develop AI Cloud Solutions on Microsoft Azure<img width="559" height="19" alt="image" src="https://github.com/user-attachments/assets/bcaf0224-fc32-4aa8-870d-5b47fa478531" />
+
+---
+
 ## 📦 Project Overview
 
 The solution consists of:
