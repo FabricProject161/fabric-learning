@@ -1,4 +1,4 @@
-# Supply Chain
+# Supply Chain Management
 
 ```mermaid
 mindmap
